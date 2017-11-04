@@ -166,7 +166,7 @@ class Branchdiff extends DiffBase
         }
 
         if (empty($this->params['sidebyside'])) {
-            include_once(\GitPHP_Util::AddSlash('lib/syntaxhighlighter') . "syntaxhighlighter.php");
+            include_once(\GitPHP_Util::AddSlash('lib/highlightjs') . "highlightjs.php");
             $this->tpl->assign('sexy', 1);
             $this->tpl->assign('highlighter_no_ruler', 1);
             $this->tpl->assign('highlighter_diff_enabled', 1);
@@ -176,7 +176,7 @@ class Branchdiff extends DiffBase
             $statuses = [];
             $folders = [];
             foreach ($branchdiff as $filediff) {
-                $SH = new \SyntaxHighlighter($filediff->getToFile());
+                $SH = new \HighLightJs($filediff->getToFile());
                 $brashes = array_merge($SH->getBrushesList(), $brashes);
 
                 $extensions[$filediff->getToFileExtension()] = $filediff->getToFileExtension();

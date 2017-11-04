@@ -1,4 +1,4 @@
-{if $highlighter_brushes}
+{if $sexy}
 {literal}
 <div id="review_comment">
 
@@ -24,7 +24,7 @@
 <a id="review_commentnav_next" href="#" class="reivew_commentnav" style="display: none;">&#x2193;</a>
 
 {/literal}
-<script type="text/javascript">
+<!-- <script type="text/javascript">
 function SyntaxHighlighterApply() {ldelim}
     SyntaxHighlighter.autoloader.apply(null, [
     {foreach from=$highlighter_brushes item=brush_file key=brush_name}
@@ -42,5 +42,11 @@ function SyntaxHighlighterApply() {ldelim}
     SyntaxHighlighter.all();
 {rdelim}
 SyntaxHighlighterApply();
+</script> -->
+
+<script>
+    hljs.initHighlighting();
+    hljs.initLineNumbersOnLoad();
+    Review.start();
 </script>
 {/if}

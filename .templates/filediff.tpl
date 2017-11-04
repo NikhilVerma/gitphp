@@ -13,8 +13,8 @@
 </p>
 {else}
 {if $sexy}
-<pre class="brush: {$decoration.highlighter_brush_name}" data-marks="{$filediff->getInlineChanges()}">{foreach from=$diff item=diffline}{$diffline}
-{/foreach}</pre>
+<pre><code class="{$decoration.highlighter_brush_name}.diff" data-marks="{$filediff->getInlineChanges()}">{foreach from=$diff item=diffline}{$diffline}
+{/foreach}</code></pre>
 {else}
 <div class="pre">
 {foreach from=$diff item=diffline}

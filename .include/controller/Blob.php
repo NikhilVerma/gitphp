@@ -1,7 +1,8 @@
 <?php
 namespace GitPHP\Controller;
 
-require_once __DIR__ . '/../../lib/syntaxhighlighter/syntaxhighlighter.php';
+
+require_once __DIR__ . '/../../lib/highlightjs/highlightjs.php';
 
 /**
  * Blob controller class
@@ -13,22 +14,22 @@ class Blob extends Base
 {
     protected $code_mirror_modes = [
         // 'file_extension' => 'mode' | 'mime-type'
-        \SyntaxHighlighter::TYPE_TEXT => 'text',
-        \SyntaxHighlighter::TYPE_PHP => 'php',
-        \SyntaxHighlighter::TYPE_JS => 'javascript',
-        \SyntaxHighlighter::TYPE_CSS => 'css',
-        \SyntaxHighlighter::TYPE_BASH => 'shell',
-        \SyntaxHighlighter::TYPE_JAVA => 'text/x-java',
-        \SyntaxHighlighter::TYPE_XML => 'xml',
-        \SyntaxHighlighter::TYPE_SQL => 'sql',
-        \SyntaxHighlighter::TYPE_PYTHON => 'python',
-        \SyntaxHighlighter::TYPE_DIFF => 'diff',
-        \SyntaxHighlighter::TYPE_CPP => 'text/x-c++src',
+        \HighLightJs::TYPE_TEXT => 'text',
+        \HighLightJs::TYPE_PHP => 'php',
+        \HighLightJs::TYPE_JS => 'javascript',
+        \HighLightJs::TYPE_CSS => 'css',
+        \HighLightJs::TYPE_BASH => 'shell',
+        \HighLightJs::TYPE_JAVA => 'text/x-java',
+        \HighLightJs::TYPE_XML => 'xml',
+        \HighLightJs::TYPE_SQL => 'sql',
+        \HighLightJs::TYPE_PYTHON => 'python',
+        \HighLightJs::TYPE_DIFF => 'diff',
+        \HighLightJs::TYPE_CPP => 'text/x-c++src',
         // there is no applescript mode in https://github.com/marijnh/CodeMirror/tree/master/mode :(
-        // \SyntaxHighlighter::TYPE_APPLE_SCRIPT => 'applescript',
-        \SyntaxHighlighter::TYPE_RUBY => 'ruby',
-        \SyntaxHighlighter::TYPE_CSHARP => 'text/x-csharp',
-        \SyntaxHighlighter::TYPE_OBJC => 'text/x-objc',
+        // \HighLightJs::TYPE_APPLE_SCRIPT => 'applescript',
+        \HighLightJs::TYPE_RUBY => 'ruby',
+        \HighLightJs::TYPE_CSHARP => 'text/x-csharp',
+        \HighLightJs::TYPE_OBJC => 'text/x-objc',
     ];
 
     public function __construct()
@@ -167,7 +168,7 @@ class Blob extends Base
 
                 $file_name = $this->params['file'];
                 if (preg_match('/.*?\.(\w+)$/', $file_name, $matches)) {
-                    $type = \SyntaxHighlighter::getTypeByExtension($matches[1]);
+                    $type = \HighLightJs::getTypeByExtension($matches[1]);
                     if ($type && isset($this->code_mirror_modes[$type])) {
                         $headers[] = 'Cm-mode: ' . $this->code_mirror_modes[$type];
                     } else {
@@ -235,8 +236,8 @@ class Blob extends Base
 
         switch ($this->params['hi']) {
             case 'sexy':
-                include_once(\GitPHP_Util::AddSlash('lib/\SyntaxHighlighter') . "\SyntaxHighlighter.php");
-                $SH = new \SyntaxHighlighter($blob->GetName());
+                include_once(\GitPHP_Util::AddSlash('lib/\highlightjs') . "\highlightjs.php");
+                $SH = new \HighLightJs($blob->GetName());
                 $this->tpl->assign('sexy', 1);
                 $this->tpl->assign('extracss_files', $SH->getCssList());
                 $this->tpl->assign('extrajs_files', $SH->getJsList());

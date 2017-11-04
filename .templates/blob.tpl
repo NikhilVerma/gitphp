@@ -13,7 +13,7 @@
  <div class="page_nav">
    {include file='nav.tpl' treecommit=$commit}
    <br />
-   <a href="{$SCRIPT_NAME}?p={$project->GetProject()|urlencode}&amp;a=blob_plain&amp;h={$blob->GetHash()}&amp;f={$blob->GetPath()}">{t}plain{/t}</a> | 
+   <a href="{$SCRIPT_NAME}?p={$project->GetProject()|urlencode}&amp;a=blob_plain&amp;h={$blob->GetHash()}&amp;f={$blob->GetPath()}">{t}plain{/t}</a> |
    {if ($commit->GetHash() != $head->GetHash()) && ($head->PathToHash($blob->GetPath()))}
      <a href="{$SCRIPT_NAME}?p={$project->GetProject()|urlencode}&amp;a=blob&amp;hb=HEAD&amp;f={$blob->GetPath()}">{t}HEAD{/t}</a>
    {else}
@@ -42,9 +42,7 @@
        <tbody>
        <tr class="li1">
        <td class="de1">
-           <pre class="brush: {$highlighter_brush_name}">
- {$blobstr|escape}
-           </pre>
+           <pre><code class="{$highlighter_brush_name}">{$blobstr|escape}</code></pre>
        </td>
        </tr>
        </tbody>

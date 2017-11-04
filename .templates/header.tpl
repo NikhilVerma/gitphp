@@ -48,6 +48,7 @@
     <script type="text/javascript" src="/js/ext/jquery.cookie.js"></script>
     <script type="text/javascript" src="/js/diff.js?v={$jsversion}"></script>
     <script type="text/javascript" src="/js/session_checker.js?v={$jsversion}"></script>
+
     {if file_exists('js/tooltips.min.js')}
     <script type="text/javascript" src="/js/tooltips.min.js"></script>
     {else}
