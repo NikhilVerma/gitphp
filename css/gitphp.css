@@ -10,14 +10,14 @@
 
 
 /*
- * Base styles 
+ * Base styles
  */
 .monospace {
 	font-family: monospace;
 }
 
 td.code * {
-    font-family: monospace; !important
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace !important;
 }
 
 /*
@@ -25,18 +25,18 @@ td.code * {
  * (main header with commit message)
  */
 div.title a.title {
-	display: block; 
+	display: block;
 }
 
 
 /*
  * Full log view
  */
-div.log_body { 
-	padding: 8px 8px 8px 150px; 
+div.log_body {
+	padding: 8px 8px 8px 150px;
 }
-span.age { 
-	position: relative; 
+span.age {
+	position: relative;
 	float: left;
 	width: 142px;
 }
@@ -44,7 +44,7 @@ div.log_link {
 	margin: -5px 0px;
 	padding: 0px 8px;
 	position: relative;
-	float: left; 
+	float: left;
 	width: 136px;
 }
 
@@ -52,17 +52,17 @@ div.log_link {
 /*
  * Diff display
  */
-.pre { 
-	white-space: pre; 
+.pre {
+	white-space: pre;
 }
 
 
 /*
  * Search box
  */
-div.search { 
-	margin: 4px 8px; 
-	position: absolute; 
+div.search {
+	margin: 4px 8px;
+	position: absolute;
 	top: 56px;
 	right: 12px
 }
@@ -158,7 +158,7 @@ div.commitDiffSBS div.SBSTOC .showAll
 	font: normal normal 1em/1.2em monospace;
 	margin: 0;
 	padding: 0;
-	background: none; 
+	background: none;
 	vertical-align: top;
 }
 
@@ -214,7 +214,7 @@ div.diff_controls {
 }
 
 .hidden {
-    display: none;
+    display: none !important;
 }
 
 .highlight {
@@ -265,5 +265,133 @@ div.diff_controls {
 }
 
 .ext-hidden, .st-hidden, .fldr-hidden {
+	display: none !important;
+}
+
+/* Comment mode toggler */
+.page_body .only-comments-warning {
 	display: none;
+}
+.page_body.only-comments .only-comments-warning {
+	display: block;
+	text-align: center;
+	background: #ffffca;
+	padding: 10px;
+}
+.page_body.only-comments .line:not(.commented) {
+    display: none;
+}
+.page_body.only-comments .diffBlob.lines-visible .line {
+    display: block;
+}
+
+/* Clear fix for lines in code */
+.clearfix:after,
+.line:after {
+    content: " ";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden;
+}
+
+.line:last-child::after {
+	display: none;
+}
+
+.is-loading {
+	position: relative;
+}
+
+.is-loading::before {
+	content: "";
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	background: rgba(0,0,0,0.2);
+	z-index: 100;
+}
+
+.is-loading::after {
+	content: "";
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	margin-left: -10px;
+	margin-top: -10px;
+	width: 20px;
+	height: 20px;
+	background: white;
+	animation: sk-cubemove 2s infinite ease-in-out;
+	z-index: 200;
+	border-radius: 5px;
+}
+
+@keyframes sk-cubemove {
+	25% {
+	  transform: translateX(42px) rotate(-90deg) scale(0.5);
+	}
+	50% {
+	  transform: translateX(42px) translateY(42px) rotate(-179deg);
+	}
+	50.1% {
+	  transform: translateX(42px) translateY(42px) rotate(-180deg);
+	}
+	75% {
+	  transform: translateX(0px) translateY(42px) rotate(-270deg) scale(0.5);
+	}
+	100% {
+	  transform: rotate(-360deg);
+	}
+}
+
+.switcher {
+    position: relative;
+    display: inline-block;
+    vertical-align: top;
+}
+
+.switcher a {
+    position: relative;
+    top: 0;
+    left: 0;
+    display: block;
+    width: 35px;
+    height: 20px;
+    border-radius: 10px;
+    background: #cdd7de;
+    transition: background .2s;
+}
+
+.switcher a::before {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    content: '';
+    border-radius: 50%;
+    background: #fff;
+    transform: translate3d(0, 0, 0);
+    transition: transform .2s;
+}
+
+.switcher a::after {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    bottom: -5px;
+    left: -5px;
+    content: '';
+    cursor: pointer;
+}
+
+.switcher.checked a {
+    background: #7000e3;
+}
+
+.switcher.checked a::before {
+    transform: translate3d(15px, 0, 0);
 }

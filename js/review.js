@@ -334,16 +334,6 @@ var Review = (function() {
                 if (!Review.reviewSaveSuccess(data)) {
                     return;
                 }
-                if (data.snapshot && data.snapshot.review_type != 'unified') {
-                    q.o = 'sidebyside';
-                    var search = [];
-                    for (var i in q) {
-                        search.push(i + '=' + q[i]);
-                    }
-                    alert('Review is sidebyside. Redirecting...');
-                    document.location.search = search.join('&');
-                    return;
-                }
                 $('div.comments').remove();
                 $('a.files_index_anchor').remove();
                 $('div.commented').each(function(){
@@ -359,6 +349,9 @@ var Review = (function() {
                         var line = parseInt(data.comments[i].line);
                         var lines_count = parseInt(data.comments[i].lines_count) || 0;
                         var real_line = parseInt(data.comments[i].real_line) || undefined;
+                        if (data.comments[i].side) {
+                            real_line = real_line + 1;
+                        }
                         var real_line_before = parseInt(data.comments[i].real_line_before) || undefined;
                         var text = data.comments[i].text;
                         var author = data.comments[i].author;
@@ -367,6 +360,7 @@ var Review = (function() {
                             $line = Review.getNodeFileLine(file, j, real_line_before, real_line, line - j);
                             $line.addClass('commented').data('line', line).data('file', file).data('lines_count', lines_count)
                                 .data('real_line', real_line).data('real_line_before', real_line_before);
+                            $line.closest('.diffBlob').addClass('has-review-comment');
                         }
                         if (data.comments[i].status == 'Draft') {
                             $('#review_finish').show();
@@ -378,25 +372,31 @@ var Review = (function() {
                         var commentsHtml = '<div class="comments' + thread + '">'
                             + '<a name="' + data.comments[i].id + '" href="#' + data.comments[i].id + '"><span class="date">' + date + '</span> <span class="author">' + author + ':</span></a> '
                             + '<span class="text">' + text + '</span></div>';
+
                         if (data.comments[i].status == 'Draft') {
-                            commentsHtml = '<table><tr><td><div class="comments draft' + thread + '" title="draft, click to edit">'
-                                + '<a name="' + data.comments[i].id + '" href="#' + data.comments[i].id + '"><span class="date">' + date + '</span> <span class="author">' + author + ':</span></a> '
-                                + '<span class="text">' + text + '</span></div></td><td><div class="comments draft controls" title="draft, click to edit">'
-                                + '<span class="btn_small" id="review_line_edit">Edit</span>'
-                                + '<span class="btn_small" id="review_line_delete" title="delete this comment">Delete</span></div></td></tr></table>';
+                            commentsHtml = `<div class="comments draft ${thread}" title="draft, click to edit"><a name="${data.comments[i].id}" href="#${data.comments[i].id}"><span class="date">${date}</span> <span class="author">${author}:</span></a><span class="text">${text}</span><div>
+                                    <div class="btn_small review_btn review_save" id="review_line_edit" title="Edit this comment">Edit</div><div class="btn_small review_btn review_cancel" id="review_line_delete" title="delete this comment">Delete</div></div></div>`;
                         }
-                        $line.append(commentsHtml);
+
+                        var $container = $line.children('.comment-container');
+
+                        if ($container.length === 0) {
+                            $line.append('<div class="comment-container"></div>');
+                            $container = $line.children('.comment-container');
+                        }
+                        $container.append(commentsHtml);
                         var $comment_anchor = $('<a href="#' + data.comments[i].id + '" class="files_index_anchor">#' + (1 + parseInt(i)) + '</a>');
                         $comment_anchor.data('file', file).click(Review.clickCommentAnchor);
                         if (location.hash.substr(1) == data.comments[i].id) {
                             anchorDefferredForClick = $comment_anchor;
                         }
                         $('td[name="files_index_' + file + '"]').append(' ').append($comment_anchor);
+                        $('span[name="files_index_' + file + '"]').append(' ').append($comment_anchor);
                         Review.comments_ids_file.push({id: data.comments[i].id, file: file});
                         prev_line = line;
                     }
                     $('#review_review').show();
-                    $('body').append('<div style="height:44px;" id="review_posfixedspace"></div>');
+                    $('body').addClass('has-review-block');
                     $('#review_commentnav_next').show();
                     $('#review_commentnav_prev').show();
 
@@ -406,7 +406,7 @@ var Review = (function() {
                     Review.comments_count_draft = data.comments_count_draft;
                 } else {
                     $('#review_review').hide();
-                    $('#review_posfixedspace').remove();
+                    $('body').removeClass('has-review-block');
                     $('#review_commentnav_next').hide();
                     $('#review_commentnav_prev').hide();
                 }
@@ -418,7 +418,7 @@ var Review = (function() {
     Review.showForm = function(target) {
         $('l').removeClass('hoverable').hide();
         $('#review_review').show();
-        $('body').append('<div style="height:44px;" id="review_posfixedspace"></div>');
+        $('body').addClass('has-review-block');
         $('#review_posfixedspace').append($('#review_comment'));
         target.className += ' selected selected-multi';
         var $draft = $(target).find('.draft');
@@ -435,7 +435,14 @@ var Review = (function() {
         if ($(target).find('#review_save').size()) {
             return true;
         }
-        $(target).append(wnd);
+        var $container = $(target).children('.comment-container');
+
+        if ($container.length === 0) {
+            $(target).append('<div class="comment-container"></div>');
+            $container = $(target).children('.comment-container');
+        }
+
+        $container.append(wnd);
         Review.checkReviewId();
         $('#review_text').focus();
     };
@@ -454,6 +461,7 @@ var Review = (function() {
             $('.commented .draft').show();
             if (!Review.review_id) {
                 $('#review_review').hide();
+                $('body').removeClass('has-review-block');
             }
             $('#review_posfixedspace').remove();
             e && e.stopPropagation && e.stopPropagation();
@@ -521,7 +529,8 @@ var Review = (function() {
         }
         if ($target.attr('id') == 'review_line_delete' && $target.parents('.commented').size() != 0) {
             if (confirm('Are you sure?')) {
-                var $comment_id = $target.parents('tr').find('.comments.draft > a').attr('name');
+                // (current comment container -> draft -> link).name
+                var $comment_id = $target.parents('.comment-container').find('.comments.draft > a').attr('name');
                 $.post('/?a=delete_comment', {comment_id: $comment_id}, function(data) {
                     $target = $target.parents('.commented');
                     $target.find('table').hide();
@@ -634,6 +643,20 @@ var Review = (function() {
         return false;
     };
 
+    Review.toggleReviewComments = function (e) {
+        e.preventDefault();
+        $('.diffBlob.lines-visible').removeClass('lines-visible');
+        $('.page_body').toggleClass('only-comments');
+    }
+
+    Review.expandBlobIfNeeded = function (e) {
+        // Comments only mode is not shown, no need to go forther
+        if (!$('.page_body').hasClass('only-comments')) {
+            return;
+        }
+        $(e.currentTarget).addClass('lines-visible');
+    }
+
     /**
      * call when all lines are hightlighted and div.line exists in DOM
      */
@@ -667,6 +690,8 @@ var Review = (function() {
         $('.line-number').parent().prepend('<l class="hoverable context-menu-button">+</l>');
 
         if (!Review.is_handlers_bound) {
+            $('.js-toggle-review-comments').click(Review.toggleReviewComments);
+            $('.diffBlob').click(Review.expandBlobIfNeeded);
             $('#review_save').click(Review.commentSubmit);
             $('#review_cancel').click(Review.hideForm);
             $('#review_finish').click(Review.setReviewStatus);
@@ -691,13 +716,12 @@ var Review = (function() {
             $('body').on('keyup', null, null, function(e) {
                 if (e.keyCode == 27) {
                     Review.hideForm();
-                } else if (e.keyCode == 38 && !(e.target instanceof HTMLTextAreaElement) && (e.ctrlKey || e.altKey)) {
+                } else if ((e.keyCode == 38 || e.keyCode == 80) && !(e.target instanceof HTMLTextAreaElement) && (e.ctrlKey || e.altKey)) {
                     Review.gotoPrevComment();
                     window.location = $('#review_commentnav_prev').attr('href');
-                } else if (e.keyCode == 40 && !(e.target instanceof HTMLTextAreaElement) && (e.ctrlKey || e.altKey)) {
+                } else if ((e.keyCode == 40 || e.keyCode == 78) && !(e.target instanceof HTMLTextAreaElement) && (e.ctrlKey || e.altKey)) {
                     Review.gotoNextComment();
                     window.location = $('#review_commentnav_next').attr('href');
-
                 }
                 return true;
             });
@@ -705,6 +729,25 @@ var Review = (function() {
                 if (Review.form_shown && $('#review_text').val()) {
                     return "You're about to leave this page but you have unsaved comment\nIf you continue unsaved message would be lost";
                 }
+            });
+
+            // Fix copy paste of code
+            document.addEventListener('copy', function(e){
+                const copyTarget = $(e.target);
+                const parentBlob = copyTarget.parents('.diffBlob');
+
+                // Ignore copy pasting of non-code
+                if (parentBlob.length === 0) {
+                    return;
+                }
+
+                // HACKIEST of hacks :) but it works!
+                $('.line-number').addClass('hidden');
+                const clipboardData = document.getSelection().toString();
+                $('.line-number').removeClass('hidden');
+
+                e.clipboardData.setData('text/plain', clipboardData);
+                e.preventDefault(); // default behaviour is to copy any selected text
             });
         }
         Review.is_handlers_bound = true;

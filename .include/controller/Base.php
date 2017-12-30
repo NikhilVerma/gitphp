@@ -245,6 +245,7 @@ abstract class Base
             $stylesheet = 'gitphpskin.css';
         }
         $this->tpl->assign('stylesheet', $stylesheet);
+        $this->tpl->assign('libVersion', filemtime(GITPHP_LIBDIR));
         $this->tpl->assign('cssversion', filemtime(GITPHP_CSSDIR));
         $this->tpl->assign('jsversion', filemtime(GITPHP_JSDIR));
 
@@ -486,7 +487,7 @@ END;
         }
         if ($review) {
             $reviewObj = \GitPHP_Db::getInstance()->findReviewById($review);
-            $ticket = \GitPHP\Tracker::instance()->parceTicketFromString($reviewObj['ticket']);
+            $ticket = \GitPHP\Tracker::instance()->parseTicketFromString($reviewObj['ticket']);
         }
         return $ticket;
     }

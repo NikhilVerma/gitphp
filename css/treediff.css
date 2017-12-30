@@ -1,0 +1,188 @@
+.two-panes {
+	display: -webkit-flex;
+	display: flex;
+	-webkit-flex-direction: row;
+	flex-direction: row;
+	align-content: stretch;
+	height: calc(100vh - 162px);
+}
+
+.has-review-block .two-panes {
+	height: calc(100vh - 220px);
+}
+
+.two-panes .left-pane {
+	flex: 1 0 0;
+	overflow: scroll;
+	padding: 0 0 10px 10px;
+	min-width: 200px;
+}
+
+.two-panes .pane-dragger {
+	width: 6px;
+	background: #eeeeee;
+	min-height: 100px;
+	align-self: stretch;
+	position: relative;
+	display: flex;
+	border-left: 1px solid #dcd8d8;
+	cursor: col-resize;
+}
+
+.two-panes .pane-dragger:after {
+    content: "";
+    width: 4px;
+    height: 40px;
+    background: #c8c8c8;
+    position: absolute;
+    top: 50%;
+    margin-top: -20px;
+    left: 1px;
+}
+
+.two-panes .right-pane {
+	flex: 5 0 0;
+	overflow: scroll;
+}
+
+.right-pane .diffBlob {
+	display: none;
+}
+
+.right-pane .diffBlob.is-visible {
+	display: block;
+}
+
+.left-pane .file_filter {
+    margin-left: 0;
+}
+
+.file-list {
+	padding: 0;
+	margin: 0;
+	line-height: 1.5em;
+}
+
+.file-list li {
+	white-space: nowrap;
+	list-style: none;
+	padding-left: 15px;
+	display: block;
+	position: relative;
+}
+
+.file-list li > a {
+	text-decoration: none;
+	position: relative;
+	padding-left: 18px;
+}
+
+.file-list li.is-active {
+	background: #f7f6f6;
+}
+
+.file-list li.is-active > a {
+	color: black !important;
+}
+
+.file-list li.collapsed > .file-list {
+	display: none;
+}
+
+.file-list .type-folder {
+	color: #333;
+	display: block;
+	margin-top: 5px;
+	position: relative;
+	padding-left: 20px;
+}
+
+/* Added files */
+.file-list .status-a a {
+    color: #008c00;
+}
+.file-list .status-a a:visited {
+    color: #829f82;
+}
+
+/* Deleted files */
+.file-list .status-d a {
+    color: #a50000;
+}
+.file-list .status-d a:visited {
+    color: #ca9999;
+}
+
+/* Modified files */
+.file-list .status-m a {
+    color: #3a75bd;
+}
+.file-list .status-m a:visited {
+    color: #91bef5;
+}
+
+/* Renamed files */
+.file-list .status-r a {
+    color: #a400cf;
+}
+.file-list .status-r a:visited {
+    color: #c991f5;
+}
+
+/* Visited files */
+.file-list li.is-visited > a:after {
+	content: "✅";
+	position: absolute;
+	left: 5px;
+	font-size: 10px;
+	bottom: -4px;
+	line-height: 10px;
+}
+
+.file-list .type-file .review-comments a,
+.file-list .type-file .review-comments span {
+	background: #ffde00;
+	font-size: 12px;
+	line-height: 15px;
+	border-radius: 4px;
+	color: #000;
+	display: inline-block;
+	padding: 2px 4px 0px 4px;
+}
+
+.file-list .type-file > a::before,
+.file-list .type-folder::before {
+	content: "";
+	background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNNCAyMnYtMjBoMTZ2MTEuNTQzYzAgNC4xMDctNiAyLjQ1Ny02IDIuNDU3czEuNTE4IDYtMi42MzggNmgtNy4zNjJ6bTE4LTcuNjE0di0xNC4zODZoLTIwdjI0aDEwLjE4OWMzLjE2MyAwIDkuODExLTcuMjIzIDkuODExLTkuNjE0em0tNS0xLjM4NmgtMTB2LTFoMTB2MXptMC00aC0xMHYxaDEwdi0xem0wLTNoLTEwdjFoMTB2LTF6Ii8+PC9zdmc+");
+	width: 14px;
+	height: 14px;
+	position: absolute;
+	background-repeat: no-repeat;
+	background-size: contain;
+	left: 0;
+	top: 2px;
+}
+
+.file-list .type-folder::before {
+	background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNNy45NzIgMmgtNi45NzJsLjcxNCA1aDIuMDIxbC0uNDI5LTNoMy42OTRjMS4xMTIgMS4zODggMS45NTIgMiA0LjI3NyAyaDkuMjgzbC0uMiAxaDIuMDRsLjYtM2gtMTEuNzIzYy0xLjk3OCAwLTIuMDQxLS40MTctMy4zMDUtMnptMTYuMDI4IDdoLTI0bDIgMTNoMjBsMi0xM3oiIHN0eWxlPSJmaWxsOiAjMDA5NGE0OyI+PC9wYXRoPjwvc3ZnPg==");
+}
+
+.file-list li .type-folder::after {
+	content: "▼";
+	width: 10px;
+	height: 15px;
+	display: block;
+	position: absolute;
+	color: #666;
+	left: -15px;
+	top: -1px;
+	font-size: 10px;
+}
+
+.file-list li.collapsed .type-folder::after {
+	content: "▶︎";
+}
+
+.page_body.only-comments .right-pane .diffBlob.has-review-comment {
+    display: block;
+}

@@ -1,4 +1,5 @@
 <?php
+
 namespace GitPHP\Controller;
 /**
  * GitPHP Controller DiffBase
@@ -15,18 +16,20 @@ namespace GitPHP\Controller;
 /**
  * Constants for diff modes
  */
-define('GITPHP_DIFF_UNIFIED', 1);
-define('GITPHP_DIFF_SIDEBYSIDE', 2);
+define('GITPHP_DIFF_UNIFIED', '1');
+define('GITPHP_DIFF_SIDEBYSIDE', '2');
 
 /**
  * Constant of the diff mode cookie in the user's browser
  */
 define('GITPHP_DIFF_MODE_COOKIE', 'GitPHPDiffMode');
+define('GITPHP_TREEDIFF_ENABLED_COOKIE', 'GitPHPTreeDiffEnabled');
 
 /**
  * Diff mode cookie lifetime
  */
 define('GITPHP_DIFF_MODE_COOKIE_LIFETIME', 60 * 60 * 24 * 365);           // 1 year
+define('GITPHP_TREEDIFF_ENABLED_COOKIE_LIFETIME', 60 * 60 * 24 * 365);           // 1 year
 
 /**
  * DiffBase controller class
@@ -46,10 +49,43 @@ abstract class DiffBase extends Base
     protected function ReadQuery()
     {
         if (!isset($this->params['plain']) || $this->params['plain'] != true) {
-            if ($this->DiffMode(isset($_GET['o']) ? $_GET['o'] : '') == GITPHP_DIFF_SIDEBYSIDE) {
+            $diffcookie = $this->DiffMode(isset($_GET['o']) ? $_GET['o'] : '');
+
+            if ($diffcookie === GITPHP_DIFF_SIDEBYSIDE) {
                 $this->params['sidebyside'] = true;
+            } else {
+                $this->params['unified'] = true;
+            }
+
+            $treediffEnabled = $this->TreeDiffEnabled(isset($_GET['treediff']) ? $_GET['treediff'] : null);
+
+            if ($treediffEnabled) {
+                $this->params['treediff'] = true;
             }
         }
+    }
+
+    protected function TreeDiffEnabled($overrideMode = null) {
+        $enabled = false;    // default
+
+        /*
+    	 * Check cookie
+    	 */
+        if (!empty($_COOKIE[GITPHP_TREEDIFF_ENABLED_COOKIE])) {
+            $enabled = $_COOKIE[GITPHP_TREEDIFF_ENABLED_COOKIE] === '1';
+        } else {
+            /*
+    		 * Create cookie to prevent browser delay
+    		 */
+            setcookie(GITPHP_TREEDIFF_ENABLED_COOKIE, $enabled ? '1' : '0', time() + GITPHP_TREEDIFF_ENABLED_COOKIE_LIFETIME);
+        }
+
+        if ($overrideMode !== null) {
+            $enabled = $overrideMode === '1';
+            setcookie(GITPHP_TREEDIFF_ENABLED_COOKIE, $overrideMode, time() + GITPHP_TREEDIFF_ENABLED_COOKIE_LIFETIME);
+        }
+
+        return $enabled;
     }
 
     /**
@@ -74,7 +110,7 @@ abstract class DiffBase extends Base
             /*
     		 * Create cookie to prevent browser delay
     		 */
-    		            setcookie(GITPHP_DIFF_MODE_COOKIE, $mode, time() + GITPHP_DIFF_MODE_COOKIE_LIFETIME);
+            setcookie(GITPHP_DIFF_MODE_COOKIE, $mode, time() + GITPHP_DIFF_MODE_COOKIE_LIFETIME);
         }
 
         if (!empty($overrideMode)) {
@@ -84,7 +120,7 @@ abstract class DiffBase extends Base
             if ($overrideMode == 'sidebyside') {
                 $mode = GITPHP_DIFF_SIDEBYSIDE;
                 setcookie(GITPHP_DIFF_MODE_COOKIE, GITPHP_DIFF_SIDEBYSIDE, time() + GITPHP_DIFF_MODE_COOKIE_LIFETIME);
-            } else if ($overrideMode == 'unified') {
+            }  else {
                 $mode = GITPHP_DIFF_UNIFIED;
                 setcookie(GITPHP_DIFF_MODE_COOKIE, GITPHP_DIFF_UNIFIED, time() + GITPHP_DIFF_MODE_COOKIE_LIFETIME);
             }
@@ -111,13 +147,17 @@ abstract class DiffBase extends Base
     protected function LoadData()
     {
         $this->tpl->assign('sidebyside', isset($this->params['sidebyside']) && ($this->params['sidebyside'] === true));
+        $this->tpl->assign('unified', isset($this->params['unified']) && ($this->params['unified'] === true));
+        $this->tpl->assign('treediff', isset($this->params['treediff']) && ($this->params['treediff'] === true));
+        $this->tpl->assign('review', $this->params['review']);
     }
 
     protected function loadReviewsLinks(\GitPHP_Commit $co, $ticket)
     {
-        if (preg_match('#([A-Z]+-[0-9]+)#', $ticket, $m)) {
-            $ticket = $m[1];
+        if ($key = \GitPHP\Tracker::instance()->parseTicketFromString($ticket)) {
+            $ticket = \GitPHP\Tracker::instance()->getReviewTicketPrefix() . $key;
         }
+
         $Db = \GitPHP_Db::getInstance();
         $reviews = $Db->getReview($ticket, $co->GetHash());
 

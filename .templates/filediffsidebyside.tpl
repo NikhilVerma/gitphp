@@ -9,19 +9,39 @@
  * @package GitPHP
  * @subpackage Template
  *}
- <script src="/js/sbs_review.js"></script>
+ <script src="/js/sbs_review.js?v={$jsversion}"></script>
 
- <div id="compare" style="height:500px;"><div>
+{if !$noCompareBlock}
+    <div id="compare" class="SBSComparison"></div>
+{/if}
 
  <script>
- var id='';
+ var id = '';
  var cm_mode = 'clike';
- var compare = $('#compare'+id);
+ var compare = $('#compare');
  var review;
  var reviewCache = new Object();
  {literal}
 
- function loadSBS(fromHash, fromFile, toHash, toFile) {
+ $(document).delegate('.SBSFileList a', 'click', function (e) {
+    e.preventDefault();
+
+    const link = $(this);
+    const data = link.data();
+
+    if (!data.fromhash) {
+        return;
+    }
+
+    loadSBS(data.fromhash, data.fromfile, data.tohash, data.tofile, function () {
+        $('.commitDiffSBS').removeClass('is-loading');
+    });
+
+    $('.file-list li').removeClass('is-active');
+    link.parent().addClass('is-active is-visited');
+ });
+
+ function loadSBS(fromHash, fromFile, toHash, toFile, callback) {
     var review_file = $('#review_file');
     if (!review_file.length) {
         $('.page_body').prepend($('<input type="hidden" id="review_file" value="' + toFile + '">'));
@@ -40,8 +60,9 @@
         review = new SideBySideReview();
         reviewCache[reviewKey] = review;
     }
-    var cnt=0;
-    $('.commitDiffSBS').append('<div id="ajax_loader" style="display:table;height:400px;overflow:hidden;position:absolute;top:0;left:0;width:100%;height:100%;background-color:rgba(255, 255, 255, 0.7);z-index:100;"><div style="display:table-cell;vertical-align:middle;text-align:center;"><img src="/images/blame-loader.gif"></div></div>');
+
+    $('.commitDiffSBS').addClass('is-loading');
+
     $.ajax({
         type: 'GET', async: true, dataType: 'text',
         {/literal}
@@ -50,12 +71,16 @@
         success: function (response, textStatus, request) {
             cm_mode = request.getResponseHeader('Cm-mode');
             compare.mergely('lhs', response);
+            var resp_length = 0;
+            if (response) {
+                resp_length = response.split("\n").length;
+            }
+            $('.page_body').prepend($('<input type="hidden" id="lhs_length" value="' + resp_length + '">'));
             compare.mergely('cm', 'lhs').setOption('mode', cm_mode);
-            compare.mergely('cm', 'lhs').setOption('viewportMargin', Infinity);
-            cnt++;
-            hideLoader(cnt);
+            hideLoader(callback);
         }
     });
+
     $.ajax({
         type: 'GET', async: true, dataType: 'text',
          {/literal}
@@ -64,44 +89,56 @@
         success: function (response, textStatus, request) {
             cm_mode = request.getResponseHeader('Cm-mode');
             compare.mergely('rhs', response);
+            var resp_length = 0;
+            if (response) {
+                resp_length = response.split("\n").length;
+            }
+            $('.page_body').prepend($('<input type="hidden" id="rhs_length" value="' + resp_length + '">'));
             compare.mergely('cm', 'rhs').setOption('mode', cm_mode);
-            compare.mergely('cm', 'rhs').setOption('viewportMargin', Infinity);
-            cnt++;
-            cnt++;
-            hideLoader(cnt);
+            hideLoader(callback);
         }
     });
- }
 
- function hideLoader(cnt) {
-     if (cnt > 1) {
-         $('#ajax_loader').remove();
-         review.setCompareElement(compare);
-         var backup_function = compare.mergely('options').updated;
-         compare.mergely('options').updated = function () {
-             review.restore();
-             compare.mergely('options').updated = backup_function;
-         };
+    var oneSideLoaded = false;
+    function hideLoader(callback) {
+        if (oneSideLoaded) {
+            review.setCompareElement(compare);
 
-     }
+            var backup_function = compare.mergely('options').updated;
+            compare.mergely('options').updated = function () {
+                compare.mergely('options').updated = backup_function;
+                review.restore();
+                compare.mergely('resize');
+                callback();
+            };
+
+            compare.mergely('update');
+        }
+
+        oneSideLoaded = true;
+    }
  }
 
  $(document).ready(function () {
     compare.mergely({
-        cmsettings: { readOnly: 'nocursor', lineNumbers: true },
-        editor_width: '48%',
-        editor_height: ($(window).height()-130)+'px'
+        cmsettings: { readOnly: 'nocursor', lineNumbers: true, viewportMargin: Infinity },
+        editor_width: '40%',
+        editor_height: ($(window).height()-130)+'px',
+
  {/literal}
  {if $ignorewhitespace}
  {literal}
-    ,ignorews: true
+    ignorews: true
  {/literal}
  {/if}
  {literal}
     });
  });
- $('.SBSTOC > ul > li > a:first').click();
- $('.SBSTOC > ul > li > a:first').parent().addClass('activeItem');
+
+ $(function(){
+    $('.SBSFileList a:first').click();
+ });
+
  </script>
  {/literal}
 {*

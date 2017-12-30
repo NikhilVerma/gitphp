@@ -37,9 +37,16 @@ class Branchdiff extends DiffBase
      */
     protected function GetCacheKey()
     {
+        $mode = '1';
+
+        if (isset($this->params['sidebyside']) && ($this->params['sidebyside'] === true)) {
+            $mode = '2';
+        }
+
         $key = (isset($this->params['hash']) ? $this->params['hash'] : '')
             . '|' . (isset($this->params['hashparent']) ? $this->params['hashparent'] : '')
-            . '|' . (isset($this->params['sidebyside']) && ($this->params['sidebyside'] === true) ? '1' : '');
+            . '|' . $mode
+            . '|' . (isset($this->params['treediff']) ? 'treediff' : '');
 
         return $key;
     }
@@ -143,7 +150,9 @@ class Branchdiff extends DiffBase
             ->setRenames($renames)
             ->setShowHidden($this->params['show_hidden']);
 
-        if (in_array($this->project->GetCategory(), \GitPHP_Config::GetInstance()->GetValue(\GitPHP_Config::SKIP_SUPPRESS_FOR_CATEGORY, []))) $DiffContext->setSkipSuppress(true);
+        if (in_array($this->project->GetCategory(), \GitPHP_Config::GetInstance()->GetValue(\GitPHP_Config::SKIP_SUPPRESS_FOR_CATEGORY, []))) {
+            $DiffContext->setSkipSuppress(true);
+        }
         $branchdiff = new \GitPHP_BranchDiff($this->project, $this->params['branch'], $this->params['base'], $DiffContext);
         if ($toHash) $branchdiff->SetToHash($toHash);
         if (preg_match('/[0-9a-f]{40}/i', $this->params['base'])) {

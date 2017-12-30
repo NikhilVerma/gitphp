@@ -1,22 +1,48 @@
+body.has-review-block {
+    padding-bottom: 40px;
+}
+
 #review_comment {
     display: none;
     position: relative !important;
     padding: 7px !important;
-    background: #fffbc2 !important;
+    background: #ffffff !important;
     white-space: normal !important;
+    margin: 0 30px 30px !important;
+    border: 1px solid #ccc !important;
+    border-top: 0 !important;
+    border-radius: 0 0px 5px 5px !important;
+    box-shadow: 0px 10px 10px -6px rgba(0,0,0,0.3);
 }
 #review_ticket {
     display: none;
 }
 div.review_btn {
-    margin: 3px auto !important;
-    padding: 4px !important;
-    border: 1px solid #888 !important;
+    margin: 4px auto 0px !important;
+    padding: 4px 10px 3px 10px !important;
+    border: 1px solid #228839 !important;
     border-radius: 3px !important;
-    background: #efe !important;
     display: inline-block;
     cursor: pointer !important;
     color: #333 !important;
+    text-align: center !important;
+    color: #fff !important;
+    background-color: #28a745 !important;
+    background-image: linear-gradient(-180deg, #34d058 0%, #28a745 90%);
+    font-family: Helvetica, Arial, sans-serif !important;
+    line-height: 1.5em !important;
+    margin-right: 10px !important;
+}
+
+div#review_line_edit {}
+
+div.review_btn.review_cancel,
+div.review_btn.comment_delete,
+#review_abort,
+#review_cancel {
+    color: #ffffff !important;
+    background-image: linear-gradient(-180deg, #ff5e5e 0%, #d33838 90%) !important;
+    border-color: #7e0000 !important;
 }
 
 span.btn_small {
@@ -30,12 +56,15 @@ span.btn_small {
 
 #review_text {
     width: 100% !important;
-    border: 1px solid #888 !important;
+    border: 1px solid #cacaca !important;
     box-sizing: border-box !important;
     border-radius: 3px !important;
     display: block !important;
     position: relative !important;
-    margin: 3px auto !important;
+    /* margin: 3px auto !important; */
+    min-height: 3em !important;
+    padding: 5px !important;
+    font-size: 14px !important;
 }
 .review_text:focus {
     box-shadow: 0 0 2px 1px #08f !important;
@@ -50,26 +79,58 @@ span.btn_small {
     display: inline-block;
 }
 .syntaxhighlighter div.commented.line {
-    background: #fffbc2 !important;
+    background: #fffcce !important;
 }
 .syntaxhighlighter div.commented.line:hover {
     background: #fffbc2 !important;
 }
-.commented div.comments {
+.syntaxhighlighter div.commented.line.deleted-row-container {
+    background: #ffebc2 !important;
+}
+.syntaxhighlighter div.commented.line.added-row-container {
+    background: #e6ffc2 !important;
+}
+
+.comment-container > div {
     color: blue !important;
-    background: #fffbc2 !important;
-    margin-left: 20px !important;
+    background: #ffffff !important;
+    /* margin-left: 20px !important; */
     white-space: pre-line;
     padding: 5px !important;
-    max-width: 980px;
+    /* max-width: 980px; */
+    margin: 0 30px !important;
+    border-left: 1px solid #ccc !important;
+    border-right: 1px solid #ccc !important;
+    border-bottom: 1px solid #ccc !important;
+    border-top: 1px solid #ccc !important;
 }
-.commented div.comments + .comments {
-    border-top: 2px solid #eadc00 !important;
+
+.comment-container > div + div {
+    padding-left: 10px !important;
+    border-top: 0 !important;
+    margin-top: 0 !important;
 }
+
+.comment-container > div + div + div {
+    padding-left: 40px !important;
+}
+
+.comment-container > div:first-child {
+    margin-top: 10px !important;
+    border-radius: 5px 5px 0px 0px !important;
+}
+
+/* Last comment */
+.comment-container > div:last-child {
+    margin-bottom: 20px !important;
+    box-shadow: 0px 10px 10px -6px rgba(0,0,0,0.3);
+    border-radius: 0 0px 5px 5px !important;
+}
+
 .commented div.comments.draft {
-    /*background: #f88 !important;*/
-    background-color: rgba(123, 19, 193, 0.2) !important;
-    margin-left: 0 !important;
+    background-color: rgb(229, 254, 255) !important;
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
 }
 
 .commented div.comments.draft.controls {
@@ -80,13 +141,6 @@ span.btn_small {
     text-align: right !important;
     height: 100% !important;
     padding: 5px 100px 5px 5px !important;
-}
-
-.commented table {
-    margin-left: 19px !important;
-    border: 0 !important;
-    border-spacing: 0 !important;
-    padding: 0 !important;
 }
 
 div.review-select {
@@ -106,6 +160,7 @@ div.review-selected {
     color: #000 !important;
     font-size: 14px !important;
 }
+.date {font-size: 12px !important;letter-spacing: -0.5px;}
 .author {
     font-weight: bold;
 }
@@ -199,10 +254,27 @@ span.review {
 /* Side by side review */
 .review_comment_block.sbs {
     display: none;
-    position: relative !important;
-    padding: 10px !important;
-    background: #eee !important;
-    white-space: normal !important;
+    padding: 0;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+}
+
+.review_comment_block.sbs.draft .cloud_with_text.sbs {
+    background-color:rgb(229, 254, 255) !important;
+}
+
+.review_comment_block.sbs .text {
+    color: #008200;
+}
+
+#review_comment_tab {
+    padding: 5px 5px 0 5px;
+    background: white;
+}
+
+#review_ticket_tab {
+    padding: 1px 10px 5px 5px;
+    background: white;
 }
 
 .cloud_with_text.sbs {
@@ -211,17 +283,11 @@ span.review {
 }
 
 .selected_text {
-    background: #eee !important;
+    background-color: #fffcce !important;
 }
 
 #review_text.sbs {
     height: 50px;
-}
-
-.commented div.comments.thread:before {
-    content: "⤷ ";
-    font-size: 120%;
-    color: black;
 }
 
 #notifications {
@@ -268,4 +334,25 @@ span.review {
 .context-menu-button:hover {
     -webkit-transform: scale(1, 1);
     transform: scale(1, 1);
+}
+
+.two-panes .SBSContent .CodeMirror-linewidget {
+    max-width: calc(45vw - 155px);
+}
+
+.SBSContent .CodeMirror-linewidget {
+    margin: 15px;
+    box-shadow: 0px 10px 10px -6px rgba(0,0,0,0.3);
+    max-width: calc(50vw - 100px);
+}
+
+.CodeMirror-linewidget .edit_buttons {
+    background: white;
+    border: 1px solid #ccc;
+    border-top: 0;
+    padding: 3px 10px 5px;
+}
+
+.SBSContent .CodeMirror-linewidget + .CodeMirror-linewidget {
+    margin-top: -17px;
 }
